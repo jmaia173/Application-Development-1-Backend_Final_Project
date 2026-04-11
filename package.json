@@ -7,7 +7,8 @@
     "start": "node app.js",
     "dev": "nodemon app.js",
     "test": "jest",
-    "setup": "node -e \"require('./database').setupDatabase()\""
+    "setup": "node -e \"require('./database').setupDatabase()\"",
+    "seed": "node database/seed.js"
   },
   "repository": {
     "type": "git",
