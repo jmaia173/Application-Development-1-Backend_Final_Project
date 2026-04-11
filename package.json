@@ -1,5 +1,34 @@
-"scripts": {
-  "start": "node app.js",
-  "dev": "nodemon app.js",
-  "test": "jest"
+{
+  "name": "application-development-1-backend_final_project",
+  "version": "1.0.0",
+  "description": "Final project for my Application Development I: Backend class",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jmaia173/Application-Development-1-Backend_Final_Project.git"
+  },
+  "keywords": [],
+  "author": "Joao Maia",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/jmaia173/Application-Development-1-Backend_Final_Project/issues"
+  },
+  "homepage": "https://github.com/jmaia173/Application-Development-1-Backend_Final_Project#readme",
+  "dependencies": {
+    "dotenv": "^17.4.1",
+    "express": "^5.2.1",
+    "sequelize": "^6.37.8",
+    "sqlite3": "^6.0.1"
+  },
+  "devDependencies": {
+    "jest": "^30.3.0",
+    "nodemon": "^3.1.14",
+    "supertest": "^7.2.2"
+  }
 }
