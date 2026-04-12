@@ -1,11 +1,8 @@
 const { Sequelize } = require('sequelize');
-const path = require('path');
-
-const isTest = process.env.NODE_ENV === 'test';
 
 const sequelize = new Sequelize({
   dialect: 'sqlite',
-  storage: isTest ? ':memory:' : path.join(__dirname, 'database.sqlite'),
+  storage: ':memory:',
   logging: false
 });
 
@@ -25,9 +22,8 @@ Team.hasMany(Game, { foreignKey: 'awayTeamId', as: 'awayGames' });
 Game.belongsTo(Team, { foreignKey: 'homeTeamId', as: 'homeTeam' });
 Game.belongsTo(Team, { foreignKey: 'awayTeamId', as: 'awayTeam' });
 
-const setupDatabase = async () => {
-  await sequelize.sync({ force: isTest });
-  console.log('Database synced successfully');
+const setupTestDatabase = async () => {
+  await sequelize.sync({ force: true });
 };
 
-module.exports = { sequelize, setupDatabase, User, Team, Player, Game };
+module.exports = { sequelize, setupTestDatabase, User, Team, Player, Game };

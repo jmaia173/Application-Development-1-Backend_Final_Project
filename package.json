@@ -6,9 +6,13 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "test": "jest",
+    "test": "NODE_ENV=test jest --runInBand --forceExit",
     "setup": "node -e \"require('./database').setupDatabase()\"",
     "seed": "node database/seed.js"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testTimeout": 10000
   },
   "repository": {
     "type": "git",
