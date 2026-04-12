@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { User } = require('../database');
+const { validateUser } = require('../middleware/validate');
 
 // GET all users
 router.get('/', async (req, res) => {
@@ -24,12 +25,9 @@ router.get('/:id', async (req, res) => {
 });
 
 // POST create user
-router.post('/', async (req, res) => {
+router.post('/', validateUser, async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
-    if (!name || !email || !password) {
-      return res.status(400).json({ error: 'Name, email, and password are required' });
-    }
     const user = await User.create({ name, email, password, role });
     const { password: _, ...userWithoutPassword } = user.toJSON();
     res.status(201).json(userWithoutPassword);

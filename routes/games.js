@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { Game, Team } = require('../database');
+const { validateGame } = require('../middleware/validate');
 
 // GET all games
 router.get('/', async (req, res) => {
@@ -34,15 +35,9 @@ router.get('/:id', async (req, res) => {
 });
 
 // POST create game
-router.post('/', async (req, res) => {
+router.post('/', validateGame, async (req, res) => {
   try {
     const { date, location, homeScore, awayScore, homeTeamId, awayTeamId } = req.body;
-    if (!date || !location || !homeTeamId || !awayTeamId) {
-      return res.status(400).json({ error: 'Date, location, homeTeamId, and awayTeamId are required' });
-    }
-    if (homeTeamId === awayTeamId) {
-      return res.status(400).json({ error: 'Home and away teams must be different' });
-    }
     const game = await Game.create({ date, location, homeScore, awayScore, homeTeamId, awayTeamId });
     res.status(201).json(game);
   } catch (err) {
@@ -51,7 +46,7 @@ router.post('/', async (req, res) => {
 });
 
 // PUT update game
-router.put('/:id', async (req, res) => {
+router.put('/:id', validateGame, async (req, res) => {
   try {
     const game = await Game.findByPk(req.params.id);
     if (!game) return res.status(404).json({ error: 'Game not found' });

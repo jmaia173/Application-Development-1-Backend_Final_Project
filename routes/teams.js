@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { Team, User, Player } = require('../database');
+const { validateTeam } = require('../middleware/validate');
 
 // GET all teams
 router.get('/', async (req, res) => {
@@ -34,12 +35,9 @@ router.get('/:id', async (req, res) => {
 });
 
 // POST create team
-router.post('/', async (req, res) => {
+router.post('/', validateTeam, async (req, res) => {
   try {
     const { name, sport, homeLocation, coachId } = req.body;
-    if (!name || !homeLocation) {
-      return res.status(400).json({ error: 'Name and homeLocation are required' });
-    }
     const team = await Team.create({ name, sport, homeLocation, coachId });
     res.status(201).json(team);
   } catch (err) {
@@ -51,7 +49,7 @@ router.post('/', async (req, res) => {
 });
 
 // PUT update team
-router.put('/:id', async (req, res) => {
+router.put('/:id', validateTeam, async (req, res) => {
   try {
     const team = await Team.findByPk(req.params.id);
     if (!team) return res.status(404).json({ error: 'Team not found' });
