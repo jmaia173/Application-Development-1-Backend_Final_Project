@@ -3,6 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { User } = require('../database');
+const { authenticate } = require('../middleware/auth');
 
 // POST /auth/register
 router.post('/register', async (req, res) => {
@@ -58,6 +59,11 @@ router.post('/login', async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: 'Login failed' });
   }
+});
+
+// POST /auth/logout
+router.post('/logout', authenticate, (req, res) => {
+  res.status(200).json({ message: 'Logged out successfully. Please delete your token on the client side.' });
 });
 
 module.exports = router;
