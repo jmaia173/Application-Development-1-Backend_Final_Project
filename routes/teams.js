@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { Team, User, Player } = require('../database');
+const { Op } = require('sequelize');
+const { Team, User, Player, Game } = require('../database');
 const { validateTeam } = require('../middleware/validate');
 const { isAdmin, isAdminOrCoach } = require('../middleware/auth');
 
@@ -35,6 +36,41 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+// GET /teams/:id/players - get all players for a team
+router.get('/:id/players', async (req, res) => {
+  try {
+    const team = await Team.findByPk(req.params.id);
+    if (!team) return res.status(404).json({ error: 'Team not found' });
+    const players = await Player.findAll({ where: { teamId: req.params.id } });
+    res.status(200).json(players);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to retrieve players for team' });
+  }
+});
+
+// GET /teams/:id/games - get all games for a team
+router.get('/:id/games', async (req, res) => {
+  try {
+    const team = await Team.findByPk(req.params.id);
+    if (!team) return res.status(404).json({ error: 'Team not found' });
+    const games = await Game.findAll({
+      where: {
+        [Op.or]: [
+          { homeTeamId: req.params.id },
+          { awayTeamId: req.params.id }
+        ]
+      },
+      include: [
+        { model: Team, as: 'homeTeam', attributes: ['id', 'name'] },
+        { model: Team, as: 'awayTeam', attributes: ['id', 'name'] }
+      ]
+    });
+    res.status(200).json(games);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to retrieve games for team' });
+  }
+});
+
 // POST create team - admin only
 router.post('/', isAdmin, validateTeam, async (req, res) => {
   try {
@@ -55,7 +91,6 @@ router.put('/:id', isAdminOrCoach, validateTeam, async (req, res) => {
     const team = await Team.findByPk(req.params.id);
     if (!team) return res.status(404).json({ error: 'Team not found' });
 
-    // Coach can only update their own team
     if (req.user.role === 'coach' && team.coachId !== req.user.id) {
       return res.status(403).json({ error: 'Access denied. You can only update your own team.' });
     }

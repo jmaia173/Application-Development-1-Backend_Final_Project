@@ -92,4 +92,28 @@ router.delete('/:id', isAdminOrCoach, async (req, res) => {
   }
 });
 
+// GET /players?position=Forward - filter by position
+// GET /players?teamId=1 - filter by team
+router.get('/search', async (req, res) => {
+  try {
+    const { position, teamId, name } = req.query;
+    const where = {};
+    if (position) where.position = position;
+    if (teamId) where.teamId = teamId;
+    if (name) where.name = require('sequelize').where(
+      require('sequelize').fn('LOWER', require('sequelize').col('name')),
+      'LIKE',
+      `%${name.toLowerCase()}%`
+    );
+
+    const players = await Player.findAll({
+      where,
+      include: [{ model: Team, as: 'team', attributes: ['id', 'name'] }]
+    });
+    res.status(200).json(players);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to search players' });
+  }
+});
+
 module.exports = router;

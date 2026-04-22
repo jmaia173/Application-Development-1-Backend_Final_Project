@@ -71,4 +71,45 @@ router.delete('/:id', isAdmin, async (req, res) => {
   }
 });
 
+// GET /games?date=2026-03-01 - filter by date
+// GET /games/upcoming - get upcoming games
+router.get('/upcoming', async (req, res) => {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const games = await Game.findAll({
+      where: {
+        date: { [require('sequelize').Op.gte]: today }
+      },
+      include: [
+        { model: Team, as: 'homeTeam', attributes: ['id', 'name'] },
+        { model: Team, as: 'awayTeam', attributes: ['id', 'name'] }
+      ],
+      order: [['date', 'ASC']]
+    });
+    res.status(200).json(games);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to retrieve upcoming games' });
+  }
+});
+
+// GET /games/results - get past games with scores
+router.get('/results', async (req, res) => {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const games = await Game.findAll({
+      where: {
+        date: { [require('sequelize').Op.lt]: today }
+      },
+      include: [
+        { model: Team, as: 'homeTeam', attributes: ['id', 'name'] },
+        { model: Team, as: 'awayTeam', attributes: ['id', 'name'] }
+      ],
+      order: [['date', 'DESC']]
+    });
+    res.status(200).json(games);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to retrieve game results' });
+  }
+});
+
 module.exports = router;
