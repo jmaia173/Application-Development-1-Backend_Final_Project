@@ -5,7 +5,6 @@ const logger = require('./middleware/logger');
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(express.json());
@@ -31,11 +30,4 @@ app.use((req, res) => {
 // Global error handler
 app.use(errorHandler);
 
-// Start server
-setupDatabase().then(() => {
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
-});
-
-module.exports = app;
+module.exports = { app, setupDatabase };
