@@ -1,3 +1,4 @@
+const bcrypt = require('bcryptjs');
 const { setupDatabase, User, Team, Player, Game } = require('./index');
 
 const seed = async () => {
@@ -11,16 +12,18 @@ const seed = async () => {
 
   console.log('Cleared existing data...');
 
+  const hashedPassword = await bcrypt.hash('password123', 10);
+
   // Create users
   const users = await User.bulkCreate([
-    { name: 'Carlos Silva', email: 'carlos@league.com', password: 'password123', role: 'admin' },
-    { name: 'Marco Rossi', email: 'marco@league.com', password: 'password123', role: 'coach' },
-    { name: 'Diego Fernandez', email: 'diego@league.com', password: 'password123', role: 'coach' },
-    { name: 'Lucas Oliveira', email: 'lucas@league.com', password: 'password123', role: 'player' },
-    { name: 'Rafael Santos', email: 'rafael@league.com', password: 'password123', role: 'player' },
-    { name: 'Bruno Costa', email: 'bruno@league.com', password: 'password123', role: 'player' },
-    { name: 'Pedro Alves', email: 'pedro@league.com', password: 'password123', role: 'player' },
-    { name: 'Mateus Lima', email: 'mateus@league.com', password: 'password123', role: 'player' }
+    { name: 'Carlos Silva', email: 'carlos@league.com', password: hashedPassword, role: 'admin' },
+    { name: 'Marco Rossi', email: 'marco@league.com', password: hashedPassword, role: 'coach' },
+    { name: 'Diego Fernandez', email: 'diego@league.com', password: hashedPassword, role: 'coach' },
+    { name: 'Lucas Oliveira', email: 'lucas@league.com', password: hashedPassword, role: 'player' },
+    { name: 'Rafael Santos', email: 'rafael@league.com', password: hashedPassword, role: 'player' },
+    { name: 'Bruno Costa', email: 'bruno@league.com', password: hashedPassword, role: 'player' },
+    { name: 'Pedro Alves', email: 'pedro@league.com', password: hashedPassword, role: 'player' },
+    { name: 'Mateus Lima', email: 'mateus@league.com', password: hashedPassword, role: 'player' }
   ]);
 
   console.log('Users created...');

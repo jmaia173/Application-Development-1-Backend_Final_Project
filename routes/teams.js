@@ -57,6 +57,12 @@ router.put('/:id', validateTeam, async (req, res) => {
     await team.update({ name, sport, homeLocation, coachId });
     res.status(200).json(team);
   } catch (err) {
+    if (err.name === 'SequelizeUniqueConstraintError') {
+      return res.status(400).json({ error: 'Team name already exists' });
+    }
+    if (err.name === 'SequelizeValidationError') {
+      return res.status(400).json({ error: err.errors.map(e => e.message).join(', ') });
+    }
     res.status(500).json({ error: 'Failed to update team' });
   }
 });

@@ -3,6 +3,7 @@ const express = require('express');
 const { setupDatabase } = require('./database');
 const logger = require('./middleware/logger');
 const errorHandler = require('./middleware/errorHandler');
+const { authenticate, isAdmin, isAdminOrCoach } = require('./middleware/auth');
 
 const app = express();
 
@@ -11,11 +12,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(logger);
 
-// Routes
-app.use('/users', require('./routes/users'));
-app.use('/teams', require('./routes/teams'));
-app.use('/players', require('./routes/players'));
-app.use('/games', require('./routes/games'));
+// Public routes
+app.use('/auth', require('./routes/auth'));
+
+// Protected routes
+app.use('/users', authenticate, isAdmin, require('./routes/users'));
+app.use('/teams', authenticate, require('./routes/teams'));
+app.use('/players', authenticate, require('./routes/players'));
+app.use('/games', authenticate, require('./routes/games'));
 
 // Health check
 app.get('/', (req, res) => {

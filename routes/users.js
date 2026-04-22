@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const bcrypt = require('bcryptjs');
 const { User } = require('../database');
 const { validateUser } = require('../middleware/validate');
 
@@ -28,7 +29,8 @@ router.get('/:id', async (req, res) => {
 router.post('/', validateUser, async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
-    const user = await User.create({ name, email, password, role });
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = await User.create({ name, email, password: hashedPassword, role });
     const { password: _, ...userWithoutPassword } = user.toJSON();
     res.status(201).json(userWithoutPassword);
   } catch (err) {
@@ -44,11 +46,21 @@ router.put('/:id', async (req, res) => {
   try {
     const user = await User.findByPk(req.params.id);
     if (!user) return res.status(404).json({ error: 'User not found' });
-    const { name, email, role } = req.body;
-    await user.update({ name, email, role });
+    const { name, email, role, password } = req.body;
+    const updates = { name, email, role };
+    if (password) {
+      updates.password = await bcrypt.hash(password, 10);
+    }
+    await user.update(updates);
     const { password: _, ...userWithoutPassword } = user.toJSON();
     res.status(200).json(userWithoutPassword);
   } catch (err) {
+    if (err.name === 'SequelizeUniqueConstraintError') {
+      return res.status(400).json({ error: 'Email already in use' });
+    }
+    if (err.name === 'SequelizeValidationError') {
+      return res.status(400).json({ error: err.errors.map(e => e.message).join(', ') });
+    }
     res.status(500).json({ error: 'Failed to update user' });
   }
 });
