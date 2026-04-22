@@ -12,6 +12,7 @@ const createTestApp = () => {
     next();
   });
 
+  app.use('/auth', require('../routes/auth'));
   app.use('/users', require('../routes/users'));
   app.use('/teams', require('../routes/teams'));
   app.use('/players', require('../routes/players'));

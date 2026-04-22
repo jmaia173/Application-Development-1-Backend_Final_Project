@@ -56,6 +56,23 @@ describe('Teams API', () => {
     expect(res.body).toHaveProperty('name', 'Updated Team');
   });
 
+  test('GET /teams/:id/players - returns players for a team', async () => {
+  const res = await request(app).get(`/teams/${testTeam.id}/players`);
+  expect(res.statusCode).toBe(200);
+  expect(Array.isArray(res.body)).toBe(true);
+});
+
+test('GET /teams/:id/games - returns games for a team', async () => {
+  const res = await request(app).get(`/teams/${testTeam.id}/games`);
+  expect(res.statusCode).toBe(200);
+  expect(Array.isArray(res.body)).toBe(true);
+});
+
+test('GET /teams/:id - returns 404 for non-existent team', async () => {
+  const res = await request(app).get('/teams/999');
+  expect(res.statusCode).toBe(404);
+});
+
   test('DELETE /teams/:id - deletes a team', async () => {
     const team = await Team.create({ name: 'Delete Me', sport: 'Soccer', homeLocation: 'Somewhere' });
     const res = await request(app).delete(`/teams/${team.id}`);

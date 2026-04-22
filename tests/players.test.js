@@ -57,6 +57,18 @@ describe('Players API', () => {
     expect(res.body).toHaveProperty('name', 'Updated Player');
   });
 
+  test('GET /players/search?position=Forward - filters by position', async () => {
+  const res = await request(app).get('/players/search?position=Forward');
+  expect(res.statusCode).toBe(200);
+  expect(Array.isArray(res.body)).toBe(true);
+});
+
+test('GET /players/search?name=Test - searches by name', async () => {
+  const res = await request(app).get('/players/search?name=Test');
+  expect(res.statusCode).toBe(200);
+  expect(Array.isArray(res.body)).toBe(true);
+});
+
   test('DELETE /players/:id - deletes a player', async () => {
     const player = await Player.create({ name: 'Delete Me', position: 'Forward', jerseyNumber: 99 });
     const res = await request(app).delete(`/players/${player.id}`);

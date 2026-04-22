@@ -61,6 +61,18 @@ describe('Games API', () => {
     expect(res.body).toHaveProperty('location', 'Updated Stadium');
   });
 
+  test('GET /games/upcoming - returns upcoming games', async () => {
+  const res = await request(app).get('/games/upcoming');
+  expect(res.statusCode).toBe(200);
+  expect(Array.isArray(res.body)).toBe(true);
+});
+
+test('GET /games/results - returns past game results', async () => {
+  const res = await request(app).get('/games/results');
+  expect(res.statusCode).toBe(200);
+  expect(Array.isArray(res.body)).toBe(true);
+});
+
   test('DELETE /games/:id - deletes a game', async () => {
     const game = await Game.create({ date: '2026-07-01', location: 'Delete Stadium', homeTeamId: homeTeam.id, awayTeamId: awayTeam.id });
     const res = await request(app).delete(`/games/${game.id}`);

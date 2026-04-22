@@ -57,6 +57,12 @@ describe('Users API', () => {
     expect(res.body).toHaveProperty('name', 'Updated User');
   });
 
+  test('GET /users/me - returns current user profile', async () => {
+  const res = await request(app).get('/users/me');
+  expect(res.statusCode).toBe(200);
+  expect(res.body).not.toHaveProperty('password');
+});
+
   test('DELETE /users/:id - deletes a user', async () => {
     const user = await User.create({ name: 'Delete Me', email: 'delete@test.com', password: 'password123', role: 'player' });
     const res = await request(app).delete(`/users/${user.id}`);
