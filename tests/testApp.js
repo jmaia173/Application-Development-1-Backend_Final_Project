@@ -1,11 +1,16 @@
 const express = require('express');
-const logger = require('../middleware/logger');
 const errorHandler = require('../middleware/errorHandler');
 
 const createTestApp = () => {
   const app = express();
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
+
+  // Mock admin user for all test requests
+  app.use((req, res, next) => {
+    req.user = { id: 1, role: 'admin' };
+    next();
+  });
 
   app.use('/users', require('../routes/users'));
   app.use('/teams', require('../routes/teams'));

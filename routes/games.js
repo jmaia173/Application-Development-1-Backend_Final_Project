@@ -2,8 +2,9 @@ const express = require('express');
 const router = express.Router();
 const { Game, Team } = require('../database');
 const { validateGame } = require('../middleware/validate');
+const { isAdmin } = require('../middleware/auth');
 
-// GET all games
+// GET all games - all authenticated users
 router.get('/', async (req, res) => {
   try {
     const games = await Game.findAll({
@@ -18,7 +19,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET game by ID
+// GET game by ID - all authenticated users
 router.get('/:id', async (req, res) => {
   try {
     const game = await Game.findByPk(req.params.id, {
@@ -34,8 +35,8 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// POST create game
-router.post('/', validateGame, async (req, res) => {
+// POST create game - admin only
+router.post('/', isAdmin, validateGame, async (req, res) => {
   try {
     const { date, location, homeScore, awayScore, homeTeamId, awayTeamId } = req.body;
     const game = await Game.create({ date, location, homeScore, awayScore, homeTeamId, awayTeamId });
@@ -45,8 +46,8 @@ router.post('/', validateGame, async (req, res) => {
   }
 });
 
-// PUT update game
-router.put('/:id', validateGame, async (req, res) => {
+// PUT update game - admin only
+router.put('/:id', isAdmin, validateGame, async (req, res) => {
   try {
     const game = await Game.findByPk(req.params.id);
     if (!game) return res.status(404).json({ error: 'Game not found' });
@@ -58,8 +59,8 @@ router.put('/:id', validateGame, async (req, res) => {
   }
 });
 
-// DELETE game
-router.delete('/:id', async (req, res) => {
+// DELETE game - admin only
+router.delete('/:id', isAdmin, async (req, res) => {
   try {
     const game = await Game.findByPk(req.params.id);
     if (!game) return res.status(404).json({ error: 'Game not found' });

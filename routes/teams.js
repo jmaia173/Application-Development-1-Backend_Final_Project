@@ -2,8 +2,9 @@ const express = require('express');
 const router = express.Router();
 const { Team, User, Player } = require('../database');
 const { validateTeam } = require('../middleware/validate');
+const { isAdmin, isAdminOrCoach } = require('../middleware/auth');
 
-// GET all teams
+// GET all teams - all authenticated users
 router.get('/', async (req, res) => {
   try {
     const teams = await Team.findAll({
@@ -18,7 +19,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET team by ID
+// GET team by ID - all authenticated users
 router.get('/:id', async (req, res) => {
   try {
     const team = await Team.findByPk(req.params.id, {
@@ -34,8 +35,8 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// POST create team
-router.post('/', validateTeam, async (req, res) => {
+// POST create team - admin only
+router.post('/', isAdmin, validateTeam, async (req, res) => {
   try {
     const { name, sport, homeLocation, coachId } = req.body;
     const team = await Team.create({ name, sport, homeLocation, coachId });
@@ -48,11 +49,17 @@ router.post('/', validateTeam, async (req, res) => {
   }
 });
 
-// PUT update team
-router.put('/:id', validateTeam, async (req, res) => {
+// PUT update team - admin or coach of that team
+router.put('/:id', isAdminOrCoach, validateTeam, async (req, res) => {
   try {
     const team = await Team.findByPk(req.params.id);
     if (!team) return res.status(404).json({ error: 'Team not found' });
+
+    // Coach can only update their own team
+    if (req.user.role === 'coach' && team.coachId !== req.user.id) {
+      return res.status(403).json({ error: 'Access denied. You can only update your own team.' });
+    }
+
     const { name, sport, homeLocation, coachId } = req.body;
     await team.update({ name, sport, homeLocation, coachId });
     res.status(200).json(team);
@@ -67,8 +74,8 @@ router.put('/:id', validateTeam, async (req, res) => {
   }
 });
 
-// DELETE team
-router.delete('/:id', async (req, res) => {
+// DELETE team - admin only
+router.delete('/:id', isAdmin, async (req, res) => {
   try {
     const team = await Team.findByPk(req.params.id);
     if (!team) return res.status(404).json({ error: 'Team not found' });
