@@ -5,7 +5,6 @@ const isTest = process.env.NODE_ENV === 'test';
 
 const sequelize = new Sequelize({
   dialect: 'sqlite',
-  dialectModule: require('better-sqlite3'),
   storage: isTest ? ':memory:' : path.join(__dirname, 'database.sqlite'),
   logging: false
 });
