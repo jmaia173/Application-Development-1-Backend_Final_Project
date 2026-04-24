@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: sports-league-api
+    env: node
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_VERSION
+        value: 20.11.0
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        value: supersecretjwtkey123
+      - key: PORT
+        value: 3000
