@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const cors = require('cors');
 const logger = require('./middleware/logger');
 const errorHandler = require('./middleware/errorHandler');
 const { authenticate, isAdmin, isAdminOrCoach } = require('./middleware/auth');
@@ -7,9 +8,21 @@ const { authenticate, isAdmin, isAdminOrCoach } = require('./middleware/auth');
 const app = express();
 
 // Middleware
+app.use(cors({
+  origin: [
+    'http://localhost:5173',
+    /\.vercel\.app$/
+  ]
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(logger);
+
+// Public GET reads, token required for everything else (POST/PUT/DELETE)
+const authenticateWrites = (req, res, next) => {
+  if (req.method === 'GET') return next();
+  return authenticate(req, res, next);
+};
 
 // Public routes
 app.use('/auth', require('./routes/auth'));
@@ -21,9 +34,9 @@ app.get('/', (req, res) => {
 
 // Protected routes
 app.use('/users', authenticate, isAdmin, require('./routes/users'));
-app.use('/teams', authenticate, require('./routes/teams'));
-app.use('/players', authenticate, require('./routes/players'));
-app.use('/games', authenticate, require('./routes/games'));
+app.use('/teams', authenticateWrites, require('./routes/teams'));
+app.use('/players', authenticateWrites, require('./routes/players'));
+app.use('/games', authenticateWrites, require('./routes/games'));
 
 // 404 handler
 app.use((req, res) => {
